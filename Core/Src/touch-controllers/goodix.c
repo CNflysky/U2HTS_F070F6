@@ -8,9 +8,6 @@
   All rights reserved.
 */
 
-#ifndef _GT5688_H_
-#define _GT5688_H_
-
 #include "u2hts_core.h"
 
 static void goodix_setup();
@@ -22,11 +19,10 @@ static u2hts_touch_controller_operations goodix_ops = {
     .fetch = &goodix_coord_fetch,
     .get_config = &goodix_get_config};
 
-static u2hts_touch_controller goodix = {.name = (uint8_t *)"Goodix",
-                                        .i2c_addr = 0x5d,
-                                        .operations = &goodix_ops};
+static u2hts_touch_controller goodix = {
+    .name = (uint8_t *)"Goodix", .i2c_addr = 0x5d, .operations = &goodix_ops};
 
-u2hts_touch_controller *default_controller = &goodix;
+U2HTS_TOUCH_CONTROLLER(goodix);
 
 #define GOODIX_CONFIG_START_REG 0x8050
 #define GOODIX_PRODUCT_INFO_START_REG 0x8140
@@ -42,21 +38,6 @@ typedef struct __packed {
   uint8_t point_size_h;
   uint8_t reserved;
 } goodix_tp_data;
-
-typedef struct {
-  uint8_t product_id_1;
-  uint8_t product_id_2;
-  uint8_t product_id_3;
-  uint8_t product_id_4;
-  uint8_t cid;
-  uint8_t patch_ver_major;
-  uint8_t patch_ver_minor;
-  uint8_t mask_ver_major;
-  uint8_t mask_ver_minor;
-  uint8_t mask_ver_internal;
-  uint8_t bonding_vid;
-  uint8_t cksum;
-} goodix_product_info;
 
 typedef struct __packed {
   // too many config entries, for now we only concern about these 6 items...
@@ -138,12 +119,10 @@ static void goodix_coord_fetch(u2hts_config *cfg, u2hts_hid_report *report) {
 static void goodix_setup() {
   u2hts_tpint_set(false);
   u2hts_tprst_set(false);
-  HAL_Delay(100);
+  u2hts_delay_ms(100);
   u2hts_tprst_set(true);
-  HAL_Delay(50);
+  u2hts_delay_ms(50);
 
   goodix_clear_irq();
-  HAL_Delay(100);
+  u2hts_delay_ms(100);
 }
-
-#endif

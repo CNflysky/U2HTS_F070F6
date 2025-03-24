@@ -43,7 +43,9 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+#if HAL_SPI_MODULE_ENABLED
 SPI_HandleTypeDef hspi1;
+#endif
 
 /* USER CODE BEGIN PV */
 
@@ -52,7 +54,9 @@ SPI_HandleTypeDef hspi1;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+#if HAL_SPI_MODULE_ENABLED
 static void MX_SPI1_Init(void);
+#endif
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -85,13 +89,6 @@ int main(void) {
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  GPIO_InitTypeDef gpio = {.Mode = GPIO_MODE_OUTPUT_PP,
-                           .Pin = GPIO_PIN_12,
-                           .Speed = GPIO_SPEED_FREQ_LOW,
-                           .Pull = GPIO_NOPULL};
-  HAL_GPIO_Init(GPIOA, &gpio);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, GPIO_PIN_RESET);
-  HAL_Delay(5);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -102,10 +99,11 @@ int main(void) {
 
   u2hts_config cfg = {0x00};
 
+  cfg.controller = (uint8_t *)"Goodix";
   cfg.x_invert = false;
   cfg.y_invert = false;
   cfg.x_y_swap = false;
-  
+
   u2hts_init(&cfg);
   /* USER CODE END 2 */
   /* Infinite loop */
@@ -157,7 +155,7 @@ void SystemClock_Config(void) {
     Error_Handler();
   }
 }
-
+#if HAL_SPI_MODULE_ENABLED
 /**
  * @brief SPI1 Initialization Function
  * @param None
@@ -193,6 +191,8 @@ static void __unused MX_SPI1_Init(void) {
 
   /* USER CODE END SPI1_Init 2 */
 }
+
+#endif
 
 /**
  * @brief GPIO Initialization Function

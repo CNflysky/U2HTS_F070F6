@@ -79,6 +79,7 @@ void HAL_MspInit(void)
   /* USER CODE END MspInit 1 */
 }
 
+#if HAL_SPI_MODULE_ENABLED
 /**
 * @brief SPI MSP Initialization
 * This function configures the hardware resources used in this example
@@ -148,5 +149,5 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi)
 }
 
 /* USER CODE BEGIN 1 */
-
+#endif
 /* USER CODE END 1 */

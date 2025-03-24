@@ -24,12 +24,16 @@ target_include_directories(stm32cubemx INTERFACE
     ../../Drivers/CMSIS/Include
 )
 
+file(GLOB_RECURSE SOURCES "../../Core/Src/touch-controllers/*.c")
+set(SOURCES ${SOURCES})
+
 target_sources(stm32cubemx INTERFACE
     ../../Core/Src/main.c
     ../../Core/Src/u2hts_core.c
     ../../Core/Src/stm32f0xx_it.c
     ../../Core/Src/stm32f0xx_hal_msp.c
     ../../Core/Src/u2hts_core.c
+    ${SOURCES}
     ../../USB_DEVICE/App/usb_device.c
     ../../USB_DEVICE/App/usbd_desc.c
     ../../USB_DEVICE/App/usbd_custom_hid_if.c

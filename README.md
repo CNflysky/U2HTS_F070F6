@@ -10,14 +10,14 @@ cd U2HTS_F070F6
 mkdir build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=MinSizeRel
-make -j16
+make -j
 ```
 
 # Flash
 Press `USR button` (close to USB-C port), then plug on the USB-C cable.
 ```bash
 sudo apt install dfu-util
-sudo ./flash-dfu.sh
+sudo ./flash.sh dfu build/U2HTS_F070F6.elf
 ```
 
 # Config
@@ -25,9 +25,10 @@ sudo ./flash-dfu.sh
 ```c
   u2hts_config cfg = {0x00};
 
+  cfg.controller = (uint8_t *)"Goodix";
   cfg.x_invert = false;
   cfg.y_invert = false;
   cfg.x_y_swap = false;
-  
+
   u2hts_init(&cfg);
 ```

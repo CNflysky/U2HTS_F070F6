@@ -24,9 +24,10 @@ sudo ./flash-dfu.sh
 ```c
   u2hts_config cfg = {0x00};
 
+  cfg.controller = (uint8_t *)"Goodix";
   cfg.x_invert = false;
   cfg.y_invert = false;
   cfg.x_y_swap = false;
-  
+
   u2hts_init(&cfg);
 ```

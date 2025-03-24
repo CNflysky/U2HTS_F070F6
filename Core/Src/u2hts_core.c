@@ -9,18 +9,21 @@
 
 #include <string.h>
 
-#include "touch-controllers/goodix.h"
 #include "usbd_customhid.h"
 
 extern USBD_HandleTypeDef hUsbDeviceFS;
 
-extern u2hts_touch_controller *default_controller;
-static u2hts_config *config;
+static u2hts_touch_controller *touch_controller = NULL;
+static u2hts_config *config = NULL;
 
 static bool u2hts_irq_status = false;
 static u2hts_hid_report u2hts_report = {0x00};
 static u2hts_hid_report u2hts_previous_report = {0x00};
 static uint16_t u2hts_tp_ids_mask = 0;
+
+// will be created by linker
+extern u2hts_touch_controller *__u2hts_touch_controllers_begin;
+extern u2hts_touch_controller *__u2hts_touch_controllers_end;
 
 static u2hts_led_pattern __unused long_flash_once[] = {
     {.level = GPIO_PIN_RESET, .delay_ms = 1000},
@@ -210,15 +213,29 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   u2hts_irq_status = (GPIO_Pin == TP_INT_Pin);
 }
 
+inline static u2hts_touch_controller *u2hts_get_touch_controller(
+    const uint8_t *name) {
+  for (u2hts_touch_controller **tc = &__u2hts_touch_controllers_begin;
+       tc < &__u2hts_touch_controllers_end; tc++)
+    if (!strcmp((const char *)(*tc)->name, (const char *)name)) return *tc;
+  return NULL;
+}
+
 inline void u2hts_init(u2hts_config *cfg) {
   config = cfg;
-  default_controller->i2c_addr =
-      (config->i2c_addr) ? config->i2c_addr : default_controller->i2c_addr;
+
+  touch_controller = u2hts_get_touch_controller(cfg->controller);
+  if (!touch_controller) {
+    while (1) U2HTS_LED_DISPLAY_PATTERN(long_flash_once);
+  }
+
+  touch_controller->i2c_addr =
+      (config->i2c_addr) ? config->i2c_addr : touch_controller->i2c_addr;
 
   // setup controller
-  default_controller->operations->setup();
+  touch_controller->operations->setup();
   u2hts_touch_controller_config tc_config =
-      default_controller->operations->get_config();
+      touch_controller->operations->get_config();
 
   config->x_max = (config->x_max) ? config->x_max : tc_config.x_max;
   config->y_max = (config->y_max) ? config->y_max : tc_config.y_max;
@@ -227,7 +244,7 @@ inline void u2hts_init(u2hts_config *cfg) {
 }
 
 static inline void u2hts_handle_touch() {
-  u2hts_touch_controller_operations *ops = default_controller->operations;
+  u2hts_touch_controller_operations *ops = touch_controller->operations;
   memset(&u2hts_report, 0x00, sizeof(u2hts_report));
   for (uint8_t i = 0; i < U2HTS_MAX_TPS; i++) u2hts_report.tp[i].id = 0xFF;
   ops->fetch(config, &u2hts_report);

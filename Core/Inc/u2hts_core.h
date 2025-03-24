@@ -12,6 +12,58 @@
 
 #include "main.h"
 
+#define U2HTS_LOG_LEVEL_ERROR 0
+#define U2HTS_LOG_LEVEL_WARN 1
+#define U2HTS_LOG_LEVEL_INFO 2
+#define U2HTS_LOG_LEVEL_DEBUG 3
+
+// No stdio attached
+#define U2HTS_LOG_LEVEL -1
+
+#if U2HTS_LOG_LEVEL >= U2HTS_LOG_LEVEL_ERROR
+#define U2HTS_LOG_ERROR(...) \
+  do {                       \
+    printf("ERROR: ");       \
+    printf(__VA_ARGS__);     \
+    printf("\n");            \
+  } while (0)
+#else
+#define U2HTS_LOG_ERROR (void)
+#endif
+
+#if U2HTS_LOG_LEVEL >= U2HTS_LOG_LEVEL_WARN
+#define U2HTS_LOG_WARN(...) \
+  do {                      \
+    printf("WARN: ");       \
+    printf(__VA_ARGS__);    \
+    printf("\n");           \
+  } while (0)
+#else
+#define U2HTS_LOG_WARN (void)
+#endif
+
+#if U2HTS_LOG_LEVEL >= U2HTS_LOG_LEVEL_INFO
+#define U2HTS_LOG_INFO(...) \
+  do {                      \
+    printf("INFO: ");       \
+    printf(__VA_ARGS__);    \
+    printf("\n");           \
+  } while (0)
+#else
+#define U2HTS_LOG_INFO (void)
+#endif
+
+#if U2HTS_LOG_LEVEL >= U2HTS_LOG_LEVEL_DEBUG
+#define U2HTS_LOG_DEBUG(...) \
+  do {                       \
+    printf("DEBUG: ");       \
+    printf(__VA_ARGS__);     \
+    printf("\n");            \
+  } while (0)
+#else
+#define U2HTS_LOG_DEBUG (void)
+#endif
+
 #define U2HTS_MAP_VALUE(value, src, dest) (((value) * (dest)) / (src))
 
 #define U2HTS_SET_BIT(val, bit, set) \
@@ -51,6 +103,7 @@ typedef struct {
 } u2hts_touch_controller_config;
 
 typedef struct {
+  uint8_t *controller;
   uint8_t i2c_addr;
   bool x_y_swap;
   bool x_invert;
@@ -67,10 +120,17 @@ typedef struct {
 } u2hts_touch_controller_operations;
 
 typedef struct {
-  uint8_t *name;
+  const uint8_t *name;
   uint8_t i2c_addr;
   u2hts_touch_controller_operations *operations;
 } u2hts_touch_controller;
+
+#define U2HTS_TOUCH_CONTROLLER(controller)                                  \
+  __attribute__((                                                           \
+      __used__,                                                             \
+      __section__(                                                          \
+          ".u2hts_touch_controllers"))) static const u2hts_touch_controller \
+      *u2hts_touch_controller_##controller = &controller
 
 void u2hts_delay_us(uint32_t us);
 void u2hts_init(u2hts_config *cfg);
@@ -95,6 +155,8 @@ inline static void u2hts_reset_tpint() {
 inline static void u2hts_tprst_set(bool val) {
   HAL_GPIO_WritePin(TP_RST_GPIO_Port, TP_RST_Pin, val);
 }
+
+inline static void u2hts_delay_ms(uint32_t ms) { HAL_Delay(ms); }
 
 typedef struct __packed {
   GPIO_PinState level;

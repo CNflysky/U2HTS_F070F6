@@ -102,6 +102,13 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
+  .u2hts_touch_controllers : {
+    __u2hts_touch_controllers_begin = .;
+    KEEP(*(SORT(.u2hts_touch_controllers*)))
+    . = ALIGN(4);
+    __u2hts_touch_controllers_end = .;
+  } > FLASH
+
   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
   .ARM : {
     __exidx_start = .;
