@@ -1,4 +1,5 @@
-# U2HTS_F070F6 [U2HTS](https://github.com/CNflysky/U2HTS) `STM32F070F6P6` Port.  
+# U2HTS_F070F6
+ [U2HTS](https://github.com/CNflysky/U2HTS) `STM32F070F6P6` Port.  
 [zh_CN(简体中文)](./README_zh.md)
 
 # Build
