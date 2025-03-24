@@ -1,5 +1,6 @@
 # U2HTS_F070F6
 Port [U2HTS](https://github.com/CNflysky/U2HTS) to `STM32F070F6P6`.  
+[zh_CN](./README_zh.md)
 
 # Build
 ```bash
