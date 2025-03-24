@@ -4,6 +4,8 @@ Port [U2HTS](https://github.com/CNflysky/U2HTS) to `STM32F070F6P6`.
 # Build
 ```bash
 sudo apt install gcc-arm-none-eabi libnewlib-dev libnewlib-arm-none-eabi make cmake
+git clone https://github.com/CNflysky/U2HTS_F070F6.git --depth 1
+cd U2HTS_F070F6
 mkdir build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=MinSizeRel
