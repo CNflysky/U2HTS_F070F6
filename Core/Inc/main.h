@@ -51,7 +51,7 @@ extern "C" {
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
-
+void MX_USB_DEVICE_Init();
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */

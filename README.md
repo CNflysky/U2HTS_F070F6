@@ -23,12 +23,8 @@ sudo ./flash.sh dfu build/U2HTS_F070F6.elf
 # Config
 [main.c](./Core/Src/main.c), line 103:
 ```c
-  u2hts_config cfg = {0x00};
-
-  cfg.controller = (uint8_t *)"Goodix";
-  cfg.x_invert = false;
-  cfg.y_invert = false;
-  cfg.x_y_swap = false;
-
-  u2hts_init(&cfg);
+  u2hts_config cfg = {.controller = (uint8_t *)"Goodix",
+                      .x_invert = false,
+                      .y_invert = false,
+                      .x_y_swap = false};
 ```

@@ -94,24 +94,18 @@ int main(void) {
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   // MX_SPI1_Init();
-  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-
-  u2hts_config cfg = {0x00};
-
-  cfg.controller = (uint8_t *)"Goodix";
-  cfg.x_invert = false;
-  cfg.y_invert = false;
-  cfg.x_y_swap = false;
+  u2hts_config cfg = {.controller = (uint8_t *)"Goodix",
+                      .x_invert = false,
+                      .y_invert = false,
+                      .x_y_swap = false};
 
   u2hts_init(&cfg);
   /* USER CODE END 2 */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1) {
-    u2hts_main();
-    /* USER CODE BEGIN 3 */
-  }
+  while (1) u2hts_main();
+  /* USER CODE BEGIN 3 */
   /* USER CODE END 3 */
 }
 
@@ -161,7 +155,7 @@ void SystemClock_Config(void) {
  * @param None
  * @retval None
  */
-static void __unused MX_SPI1_Init(void) {
+static void MX_SPI1_Init(void) {
   /* USER CODE BEGIN SPI1_Init 0 */
 
   /* USER CODE END SPI1_Init 0 */

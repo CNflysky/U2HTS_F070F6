@@ -9,7 +9,7 @@
 */
 
 #include "u2hts_core.h"
-static void rmi_setup();
+static bool rmi_setup();
 static void rmi_coord_fetch(u2hts_config *cfg, u2hts_hid_report *report);
 static u2hts_touch_controller_config rmi_get_config();
 
@@ -19,6 +19,7 @@ static u2hts_touch_controller_operations rmi_ops = {
     .get_config = &rmi_get_config};
 
 static u2hts_touch_controller rmi = {.name = (uint8_t *)"Synaptics RMI",
+                                     .irq_flag = U2HTS_IRQ_TYPE_LOW,
                                      .i2c_addr = 0x2c,
                                      .operations = &rmi_ops};
 
@@ -197,6 +198,15 @@ static int8_t rmi_fetch_pdt() {
   return -1;
 }
 
+static void rmi_print_product_info(rmi_product_info *info) {
+  U2HTS_LOG_INFO(
+      "Manufacturer: %s, product: %s, product spec[0-1]: 0x%x, 0x%x, product "
+      "date: %d/%d/%d, tester_id: 0x%x, serialno: %d",
+      (info->vendor_id == 0x01) ? "Synaptics" : "Unknown", info->product_id,
+      info->prod_spec0, info->prod_spec1, info->prod_year, info->prod_month,
+      info->prod_day, info->tester_id, info->serialno);
+}
+
 static void rmi_coord_fetch(u2hts_config *cfg, u2hts_hid_report *report) {
   // read irq reg to clear irq
   rmi_f01_data_read(1);
@@ -260,14 +270,19 @@ static u2hts_touch_controller_config rmi_get_config() {
   return config;
 }
 
-static void rmi_setup() {
+static bool rmi_setup() {
   u2hts_tprst_set(false);
   u2hts_delay_ms(100);
   u2hts_tprst_set(true);
   u2hts_delay_ms(50);
 
+  if (!u2hts_i2c_detect_slave(rmi.i2c_addr)) return false;
+
   int8_t f11_index = rmi_fetch_pdt();
-  if (!f11_index) U2HTS_LOG_ERROR("Failed to fetch F01/F11 PDT from device");
+  if (!f11_index) {
+    U2HTS_LOG_ERROR("Failed to fetch F01/F11 PDT from device");
+    return false;
+  }
 
   // software reset
   rmi_f01_cmd_write(0, 0x01);
@@ -281,9 +296,10 @@ static void rmi_setup() {
   info.product_id[10] = '\0';
 
   if (!U2HTS_CHECK_BIT(info.vendor_id, 0))
-    U2HTS_LOG_WARN("Not a Synaptics device");
+    U2HTS_LOG_WARN("Not a Synaptics device, ID = 0x%x", info.vendor_id);
   if (U2HTS_CHECK_BIT(info.device_prop, 1))
     U2HTS_LOG_WARN("This device is not compliant with RMI.");
+  rmi_print_product_info(&info);
 
   uint8_t sensor_count_reg = rmi_f11_query_read(0);
   if ((sensor_count_reg & 0x7) != 0x00)  // lower 3 bits
@@ -299,7 +315,8 @@ static void rmi_setup() {
   // we need to put ReportingMode to '000', aka "Continous reporting mode".
   uint8_t general_control = rmi_f11_ctrl_read(0);
   if (general_control & 0x7) {
-    U2HTS_LOG_WARN("Reporting mode is not 0, changing mode.");
+    U2HTS_LOG_WARN("Reporting mode is 0x%x which is not 0, changing mode.",
+                   general_control);
     U2HTS_SET_BIT(general_control, 0, 0);
     U2HTS_SET_BIT(general_control, 1, 0);
     U2HTS_SET_BIT(general_control, 2, 0);
@@ -311,4 +328,5 @@ static void rmi_setup() {
   uint8_t int_mask = 0x00;
   U2HTS_SET_BIT(int_mask, f11_index - 1, 1);
   rmi_f01_ctrl_write(1, int_mask);
+  return true;
 }
