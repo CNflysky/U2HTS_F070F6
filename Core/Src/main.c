@@ -227,7 +227,7 @@ static void MX_GPIO_Init(void) {
 
   /*Configure GPIO pin : USR_KEY_Pin */
   GPIO_InitStruct.Pin = USR_KEY_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(USR_KEY_GPIO_Port, &GPIO_InitStruct);
 
@@ -240,10 +240,6 @@ static void MX_GPIO_Init(void) {
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(TP_INT_EXTI_IRQn, 0, 0);
-  // HAL_NVIC_EnableIRQ(TP_INT_EXTI_IRQn);
-
-  HAL_NVIC_SetPriority(USR_KEY_EXTI_IRQn, 0, 0);
-  // HAL_NVIC_EnableIRQ(EXTI2_3_IRQn);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
   /* USER CODE END MX_GPIO_Init_2 */

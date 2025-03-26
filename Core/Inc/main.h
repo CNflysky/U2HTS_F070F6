@@ -66,7 +66,6 @@ void MX_USB_DEVICE_Init();
 #define USR_LED_GPIO_Port GPIOA
 #define USR_KEY_Pin GPIO_PIN_3
 #define USR_KEY_GPIO_Port GPIOA
-#define USR_KEY_EXTI_IRQn EXTI2_3_IRQn
 #define TP_SCL_NSS_Pin GPIO_PIN_4
 #define TP_SCL_NSS_GPIO_Port GPIOA
 #define TP_SDA_Pin GPIO_PIN_1

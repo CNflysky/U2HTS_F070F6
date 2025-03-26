@@ -14,6 +14,9 @@
 
 #define U2HTS_ENABLE_LED
 #define U2HTS_ENABLE_PERSISTENT_CONFIG
+#define U2HTS_ENABLE_BUTTON
+
+#define U2HTS_CONFIG_TIMEOUT 3 * 1000  // 3 s
 
 #define U2HTS_LOG_LEVEL -1  // No stdio attached
 
@@ -63,6 +66,11 @@ inline static void u2hts_led_set(bool on) {
 
 inline static void u2hts_write_config(uint16_t cfg) {
   HAL_FLASH_Unlock();
+  uint32_t e = 0;
+  FLASH_EraseInitTypeDef erase = {.NbPages = 1,
+                                  .PageAddress = U2HTS_CONFIG_STORAGE_OFFSET,
+                                  .TypeErase = FLASH_TYPEERASE_PAGES};
+  HAL_FLASHEx_Erase(&erase, &e);
   HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, U2HTS_CONFIG_STORAGE_OFFSET,
                     cfg);
   HAL_FLASH_Lock();
@@ -72,9 +80,14 @@ inline static uint16_t u2hts_read_config() {
   return *(uint16_t *)U2HTS_CONFIG_STORAGE_OFFSET;
 }
 
-inline static void u2hts_irq_set(bool enable) {
+inline static void u2hts_ts_irq_set(bool enable) {
   enable ? HAL_NVIC_EnableIRQ(TP_INT_EXTI_IRQn)
          : HAL_NVIC_DisableIRQ(TP_INT_EXTI_IRQn);
+}
+
+inline static bool u2hts_read_button() {
+  // default low
+  return HAL_GPIO_ReadPin(USR_KEY_GPIO_Port, USR_KEY_Pin);
 }
 
 #endif

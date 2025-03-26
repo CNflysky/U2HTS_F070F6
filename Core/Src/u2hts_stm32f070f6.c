@@ -175,7 +175,7 @@ inline bool u2hts_i2c_detect_slave(uint8_t addr) {
   return ret;
 }
 
-inline void u2hts_irq_setup(u2hts_touch_controller *ctrler) {
+inline void u2hts_ts_irq_setup(u2hts_touch_controller *ctrler) {
   HAL_GPIO_DeInit(TP_INT_GPIO_Port, TP_INT_Pin);
   uint32_t irq_flag = 0x00;
   switch (ctrler->irq_flag) {
@@ -201,5 +201,5 @@ inline bool u2hts_usb_report(u2hts_hid_report *report, uint8_t report_id) {
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-  u2hts_irq_status_set((GPIO_Pin == TP_INT_Pin));
+  u2hts_ts_irq_status_set((GPIO_Pin == TP_INT_Pin));
 }
